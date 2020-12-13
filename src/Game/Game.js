@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import styles from './Game.module.css';
 import { Redirect } from 'react-router';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 
 class Game extends Component {
 
     state = {
-        words: ["sigh", "dependent", "quince", "eight", "loving", "drag", "admit", "superficial"],
+        // words: ["sigh", "dependent", "quince", "eight", "loving", "drag", "admit", "superficial"],
         score: 0,
         time: 5,
         randomWord: '',
@@ -16,11 +17,18 @@ class Game extends Component {
 
     componentDidMount() {
         console.log("Clock", "componentDidMount");
-        this.addWordToDOM();
+        this.words = [];
+        axios.get(`https://random-word-api.herokuapp.com/word?number=100`)
+             .then(result => {
+                 console.log(result);
+                this.words = result.data;
+                this.addWordToDOM();
+                this.timeInterval = setInterval(() => {
+                    this.updateTime();
+                }, 1000);
+            })
+
         this.difficulty = localStorage.getItem("difficulty") || "easy";
-        this.timeInterval = setInterval(() => {
-            this.updateTime();
-        }, 1000);
     }
 
     componentWillUnmount() {
@@ -30,7 +38,7 @@ class Game extends Component {
 
     //add to DOM
     addWordToDOM = () => {
-        let randomWord = this.state.words[Math.floor(Math.random() * this.state.words.length)];
+        let randomWord = this.words[Math.floor(Math.random() * this.words.length)];
         this.setState({randomWord: randomWord});
     }
 
